@@ -37,7 +37,7 @@ auto createRandomFunction(Engine &engine)
         return dist(engine);
     });
 
-    return rand0 + rand1 + rand2 + double_rand + calls::create(rand_double);
+    return rand_double + rand0 + rand1 + rand2 + double_rand;
 }
 
 

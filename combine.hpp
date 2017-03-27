@@ -1,5 +1,4 @@
 #if __cplusplus >= 201402L // C++14
-
 namespace calls
 {
     template<typename L1>
@@ -20,30 +19,31 @@ namespace calls
 
 
     template<typename Ret, typename ...Args>
-    Combined1<std::function<Ret(Args...)> > create(Ret(*f)(Args...))
+    inline Combined1<std::function<Ret(Args...)> > create(Ret(*f)(Args...))
     {
         return Combined1<std::function<Ret(Args...)> >(f);
     }
 
     template<typename Ret, typename ...Args>
-    Combined1<std::function<Ret(Args...)> > create(std::function<Ret(Args...)> f)
+    inline Combined1<std::function<Ret(Args...)> > create(std::function<Ret(Args...)> f)
     {
         return Combined1<std::function<Ret(Args...)> >(f);
     }
 
 
     template<typename L1>
-    Combined1<L1> create(L1 l1)
+    inline Combined1<L1> create(L1 l1)
     {
         return Combined1<L1>(l1);
     }
 
     template<typename L1, typename L2>
-    Combined2<L1,L2> marge(L1 &l1, L2 &l2)
+    inline Combined2<L1,L2> marge(const L1 &l1, const L2 &l2)
     {
         return Combined2<L1,L2>(l1,l2);
     }
 }
+
 
 template<typename C1_L1, typename C2_L1>
 auto operator+(const calls::Combined1<C1_L1> &cb1, const calls::Combined1<C2_L1> &cb2)
@@ -67,6 +67,30 @@ template<typename C1_L1, typename C1_L2, typename C2_L1, typename C2_L2>
 auto operator+(const calls::Combined2<C1_L1, C1_L2> &cb1, const calls::Combined2<C2_L1, C2_L2> &cb2)
 {
     return calls::marge(cb1, cb2);
+}
+
+template<typename C1_L1, typename Callable>
+auto operator+(const calls::Combined1<C1_L1> &&cb1,const Callable &rhs)
+{
+    return calls::marge(cb1, calls::create(rhs));
+}
+
+template<typename C1_L1, typename C1_L2, typename Callable>
+auto operator+(const calls::Combined2<C1_L1, C1_L2> &&cb1,const Callable &rhs)
+{
+    return calls::marge(cb1, calls::create(rhs));
+}
+
+template<typename RetType, typename ...Args, typename Callable>
+auto operator+(RetType(*f)(Args...), const Callable &rhs)
+{
+    return calls::marge(calls::create(f), calls::create(rhs));
+}
+
+template<typename RetType, typename ...Args, typename Callable>
+auto operator+(const std::function<RetType(Args...)> &f, const Callable &rhs)
+{
+    return calls::marge(calls::create(f), calls::create(rhs));
 }
 
 #else
